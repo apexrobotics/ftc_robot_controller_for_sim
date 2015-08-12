@@ -55,6 +55,11 @@ public class FtcOpModeRegister implements OpModeRegister {
      * If two or more op modes are registered with the same name, the app will display an error.
      */
 
+    /*
+     * Simulator test Op
+     */
+    manager.register("TestLineOp",TestLineOp.class);
+    manager.register("TestOp",TestOp.class);
 
     /*
      * The following op modes are example op modes provided by QualComm.

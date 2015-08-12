@@ -1,12 +1,12 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion = 'Google Inc.:Google APIs:19'
+    compileSdkVersion = 'Google Inc.:Google APIs:21'
     buildToolsVersion = '21.1.2'
 
     defaultConfig {
-        minSdkVersion 16
-        targetSdkVersion 19
+        minSdkVersion 19
+        targetSdkVersion 21
     }
 }
 
@@ -18,7 +18,7 @@ repositories {
 
 dependencies {
     compile files('libs/android-support-v4.jar')
-    compile (name:'d2xx', ext:'jar')
+    //compile (name:'d2xx', ext:'jar')
     compile (name:'RobotCore-release', ext:'aar')
     compile (name:'ModernRobotics-release', ext:'aar')
     compile (name:'FtcCommon-release', ext:'aar')
