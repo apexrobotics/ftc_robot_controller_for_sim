@@ -75,25 +75,12 @@ public class TestOp extends OpMode {
 	 */
 	@Override
 	public void start() {
-		/*
-		 * Use the hardwareMap to get the dc motors and servos by name. Note
-		 * that the names of the devices must match the names used when you
-		 * configured your robot and created the configuration file.
-		 */
-		
-		/*
-		 * For the demo Tetrix K9 bot we assume the following,
-		 *   There are two motors "motor_1" and "motor_2"
-		 *   "motor_1" is on the right side of the bot.
-		 *   "motor_2" is on the left side of the bot and reversed.
-		*/
+
 
 		motorRight = hardwareMap.dcMotor.get("motor_2");
 		motorLeft = hardwareMap.dcMotor.get("motor_1");
 		motorLeft.setDirection(DcMotor.Direction.REVERSE);
 
-		motor3 = hardwareMap.dcMotor.get("motor_3");
-		motor4 = hardwareMap.dcMotor.get("motor_4");
 	}
 
 	/*
@@ -103,14 +90,12 @@ public class TestOp extends OpMode {
 	 */
 	@Override
 	public void loop() {
-		right += .01;  if (right > 1.0) right = 0.0;
-		left += .01;   if (left > 1.0) left = 0.0;
+
+		right = .5;
+		left = .5;
 
 		motorRight.setPower(right);
 		motorLeft.setPower(left);
-
-		motor3.setPower(right);
-		motor4.setPower(left);
 
 		/*
 		 * Send telemetry data back to driver station. Note that if we are using
