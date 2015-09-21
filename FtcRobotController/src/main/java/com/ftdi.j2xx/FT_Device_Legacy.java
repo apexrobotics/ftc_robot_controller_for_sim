@@ -26,7 +26,7 @@ public class FT_Device_Legacy extends FT_Device {
             return rc;
         }
 
-        Log.v(mFT_DeviceDescription, "WRITE(): Buffer len=" + length + " (" + bufferToHexString(data, 0, length) + ")");
+        Log.v(mFT_DeviceDescription, "WRITE(): ToPC len=" + length + " (" + bufferToHexString(data, 0, length) + ")");
 
         // Check for valid packet
         if (data[0] == PACKET_HEADER_0 && data[1] == PACKET_HEADER_1) {
