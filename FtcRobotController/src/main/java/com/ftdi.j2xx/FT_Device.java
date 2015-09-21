@@ -2,6 +2,11 @@ package com.ftdi.j2xx;
 
 import android.util.Log;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.net.Socket;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -17,18 +22,9 @@ abstract public class FT_Device
     protected static final byte PACKET_WRITE_FLAG = (byte)0x00;
     protected static final byte PACKET_READ_FLAG = (byte)0x80;
 
-    String mySerialNumber;
-    int mMotor1Encoder;  // Simulate motor 1 encoder.  Increment each write.
-    int mMotor2Encoder;  // Simulate motor 2 encoder.  Increment each write.
-    double mMotor1TotalError;
-    double mMotor2TotalError;
-    long mTimeInMilliseconds=0;
-    long mOldTimeInMilliseconds=0;
-    long mDeltaWriteTime=0;
-
-    NetworkManager mNetworkManager;
-    LinkedBlockingQueue<byte[]> mWriteToPcQueue;
-    LinkedBlockingQueue<byte[]> mReadFromPcQueue;
+    Socket mMyClient;
+    DataInputStream mIS;
+    DataOutputStream mOS;
 
     protected final byte[] mCurrentStateBuffer = new byte[1024];
 
@@ -51,9 +47,17 @@ abstract public class FT_Device
         mDeviceInfoNode.description = description;
         mFT_DeviceDescription = description;  // for use in log
 
-        mNetworkManager = new NetworkManager(ipAddress, port);
-        mReadFromPcQueue = mNetworkManager.getReadFromPcQueue();
-        mWriteToPcQueue = mNetworkManager.getWriteToPcQueue();
+
+        //mNetworkManager = new NetworkManager(ipAddress, port);
+
+        try {
+            mMyClient = new Socket(ipAddress, port);
+            mIS = new DataInputStream(mMyClient.getInputStream());
+            mOS = new DataOutputStream(mMyClient.getOutputStream());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
 
@@ -64,25 +68,11 @@ abstract public class FT_Device
 
     private int getPacketFromPC(byte[] data, int length, long wait_ms) {
         int rc = 0;
-        byte[] packet;
 
         try {
-            packet = mReadFromPcQueue.poll(wait_ms+1000, TimeUnit.MILLISECONDS);
-
-            // If timed out waiting for packet then return the last packet that was read
-            if (packet==null) {
-                for (int i=0;i<length;i++){
-                    data[i] = 0;
-                }
-
-                //System.arraycopy(mCurrentStateBuffer, 0, data, 0, length);
-                rc = length;
-            } else {
-                System.arraycopy(packet, 0, data, 0, length);                   // return the packet
-                System.arraycopy(packet, 0, mCurrentStateBuffer, 0, length);    // Save in case we lose a packet
-                rc = length;
-            }
-        } catch (InterruptedException e) {
+            mIS.readFully(data);
+            rc = length;
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -90,11 +80,14 @@ abstract public class FT_Device
     }
 
     protected void sendPacketToPC(byte[] data, int start, int length) {
-        byte[] tempBytes = new byte[length];
-        System.arraycopy(data, start, tempBytes, 0, length);
-        //tempBytes[1] =(byte)mPacketCount;   // Add a counter so we can see lost packets
-        //mPacketCount++;
-        mWriteToPcQueue.add(tempBytes);
+        byte[] tempBytes = new byte[length+1];
+        System.arraycopy(data, start, tempBytes, 1, length);
+        tempBytes[0] = (byte)length;
+        try {
+            mOS.write(tempBytes);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         //Log.v(mFT_DeviceDescription, "SendPacketToPC: Buffer len=" + length + " (" + bufferToHexString(tempBytes, 0, length) + ")");
     }
 
@@ -111,8 +104,6 @@ abstract public class FT_Device
             return -2;
         }
 
-        //Log.v(mFT_DeviceDescription, "READ() top: Buffer len=" + length);
-
         // Check onboard read queue and see if we have a override
         // Use this packet instead of reading one from the network
         if (!this.readQueue.isEmpty()) {
@@ -128,7 +119,7 @@ abstract public class FT_Device
             rc = getPacketFromPC(data, length, wait_ms);
         }
 
-        Log.v(mFT_DeviceDescription, "READ() bottom: Buffer len=" + length + " (" + bufferToHexString(data,0,length) + ")");
+        Log.v(mFT_DeviceDescription, "READ() FromPC len=" + length + " (" + bufferToHexString(data,0,length) + ")");
 
         return rc;
     }
