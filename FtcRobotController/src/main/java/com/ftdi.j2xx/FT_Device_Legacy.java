@@ -35,6 +35,8 @@ public class FT_Device_Legacy extends FT_Device {
                 // Note: if they are writing LEN bytes then the buffer they are giving us is LEN+5 bytes.
                 // since the WRITE_COMMAND header is attached.
 
+                // Don't bother waiting for the reply RECEIVE_SYNC_COMMAND from the PC, just send
+                // a quick loop back to save sending a packet.
                 RECEIVE_SYNC_COMMAND[4] = 0;
                 queueUpForReadFromPhone(RECEIVE_SYNC_COMMAND); // Reply, we got your WRITE_COMMAND
 

@@ -103,6 +103,7 @@ abstract public class FT_Device
         if (length <= 0) {
             return -2;
         }
+        Log.v(mFT_DeviceDescription, "READ() TopF");
 
         // Check onboard read queue and see if we have a override
         // Use this packet instead of reading one from the network

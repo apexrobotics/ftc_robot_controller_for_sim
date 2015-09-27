@@ -61,6 +61,8 @@ public class FtcOpModeRegister implements OpModeRegister {
     manager.register("TestLineOp",TestLineOp.class);
     manager.register("TestOp",TestOp.class);
 
+    manager.register("TestTankOp",TestTankOp.class);
+
     /*
      * The following op modes are example op modes provided by QualComm.
      * Uncomment the lines to make the op modes available to the driver station.

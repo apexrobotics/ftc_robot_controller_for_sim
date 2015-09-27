@@ -37,6 +37,8 @@ public class FT_Device_Motor extends FT_Device {
             // Note: the buffer we were giving in this case is 94+5 bytes because the "WRITE_COMMAND" header is attached
             if (data[4] == (byte)30 ) {
 
+                // Don't bother waiting for the reply RECEIVE_SYNC_COMMAND from the PC, just send
+                // a quick loop back to save sending a packet.
                 queueUpForReadFromPhone(RECEIVE_SYNC_COMMAND_0); // Reply, we got your WRITE_COMMAND
 
                 // Now, the reset of the buffer minus the 5 header bytes should be 94 (0xd0) bytes.
